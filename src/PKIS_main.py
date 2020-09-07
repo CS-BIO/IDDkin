@@ -5,6 +5,7 @@ import os
 import numpy as np
 import random,math,time
 import tensorflow as tf
+import math
 
 from sklearn.metrics import roc_auc_score
 
@@ -80,8 +81,8 @@ def model_train(args,data_cK,data_cS,data_cF,test0,test1,MD_matOrigin):
 
     D = np.zeros((data_cS.shape))
     for i in range(data_cS.shape[0]):
-        D[i,i] = np.sum(data_cS[i,])
-    aa = tf.matmul(tf.matmul(tf.pow(D1,-0.5),tf_cS),tf.pow(D1,-0.5))
+        D[i,i] = math.pow(np.sum(data_cS[i,]),-0.5)
+    aa = tf.matmul(tf.matmul(D1,tf_cS),D1)
 
     X1 = tf.nn.relu(tf.matmul(tf.matmul(aa,tf_A),W1))
     X1_2 = tf.nn.relu(tf.matmul(tf.matmul(aa, X1), W12))
