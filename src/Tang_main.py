@@ -8,8 +8,8 @@ import tensorflow as tf
 
 from sklearn.metrics import roc_auc_score
 
+# IDDkin model related parameters
 def parse_args():
-
     parser = argparse.ArgumentParser(description="Run heer.")
     parser.add_argument('--dimensions', type=int, default=32,
 	                    help='Number of free vectors dimensions. Default is 32.')
@@ -20,16 +20,15 @@ def parse_args():
     parser.add_argument("--K", type=int, default=10, help='K-nearest-neighbors. Default is 10.')
     parser.add_argument('--total_iter', type=int, default=4000,
                     	help='total_iter')
-    
     parser.add_argument('--num_Comp', type=int, default=1351,
                     	help='total_iter')
     parser.add_argument('--dim_Comp', type=int, default=167,
                     	help='total_iter')
     parser.add_argument('--num_Kin', type=int, default=188,
                     	help='total_iter')
-
     return parser.parse_args()
 
+# KNN function
 def KNN(args,Sim_matr):
     row_matr = np.eye(Sim_matr.shape[0])
     for i in range(Sim_matr.shape[0]):
@@ -38,6 +37,7 @@ def KNN(args,Sim_matr):
             row_matr[i,max_row_index[j]] = Sim_matr[i,max_row_index[j]]   
     return row_matr
 
+# Graph attention mechanism
 def atten(args,matr1,matr2,matr_Y,flag): 
     if flag == "L":
         aT = tf.Variable(tf.truncated_normal([args.num_Kin,2*args.dimensions],dtype=tf.float32))
@@ -51,7 +51,8 @@ def atten(args,matr1,matr2,matr_Y,flag):
         dd = tf.reduce_sum(cc, axis = 1)
         arrTemp_all.append(tf.nn.softmax(tf.nn.leaky_relu(dd, alpha=0.2, name=None)))
     return arrTemp_all
-    
+
+# IDDkin model training process
 def model_train(args,data_cK,data_cS,data_cF,test0,test1,MD_matOrigin):
     tf_A = tf.placeholder(tf.float32, data_cF.shape)
     tf_cS = tf.placeholder(tf.float32, data_cS.shape)
@@ -122,6 +123,7 @@ def model_train(args,data_cK,data_cS,data_cF,test0,test1,MD_matOrigin):
                       (num_iter, list_train_loss[-1], auc_score,  training_time))
         print("iter finish!")
 
+# Row regularization function
 def rowNorm(mat):
     tmp_mat = np.zeros((mat.shape[0],mat.shape[1]))
     for i in range(mat.shape[0]):
@@ -129,6 +131,7 @@ def rowNorm(mat):
            tmp_mat[i,] = mat[i,]/np.sum(mat[i,])
     return tmp_mat
 
+# Read data
 def read_data(path):
     data = []
     for line in open(path, 'r'):
@@ -140,6 +143,7 @@ def read_data(path):
         data.append(tmp)
     return data
 
+# Main function
 if __name__ == '__main__':
     args = parse_args()
     data_path = os.path.join(os.path.dirname(os.getcwd()),"data\Tang")
